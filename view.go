@@ -79,7 +79,7 @@ func moveCursor(ev termbox.Event) {
 	termbox.Flush()
 }
 
-func main () {
+func view() {
 	err := termbox.Init()
 	if err != nil {
 		panic(err)
