@@ -4,20 +4,10 @@ import (
 	"fmt"
 	"net"
 	"time"
-//	"io/ioutil"
 	"log"
 	"bufio"
-//	"flag"
 	"strings"
 )
-
-// var port string
-
-// // set flags
-// func init() {
-// 	flag.StringVar(&port, "port", "8888", "port to listen on")
-// 	flag.StringVar(&port, "p", "8888", "port to listen on")
-// }
 
 func requestMatch(url string) string {
 	conn, err := net.Dial("tcp", url)
@@ -93,20 +83,3 @@ func beClient() {
 	conn.Close()
 	play(conn, player)
 }
-
-// func main() {
-// 	flag.Parse()
-// 	port = ":" + port
-// 	url := "127.0.0.1:8081"
-// 	enemy := requestMatch(url)
-// 	if strings.Contains(enemy, "WAIT\n") {
-// 		newPort := strings.Split(enemy, ":")
-// 		ort := strings.Replace(newPort[len(newPort)-1], "WAIT\n", "", 1)
-// 		ort = ":" + ort
-// 		fmt.Printf("ok I'll wait a little bit, on port: %s\n", ort)
-// 		waitForEnemy(port)
-// 	} else {
-// 		fmt.Printf("I'm going to connect with the enemy! %s\n", enemy)
-// 		connectTo(enemy)
-// 	}
-// }

@@ -1,14 +1,7 @@
 package main
 
 import (
-//	"fmt"
-
-
-
-
-
 	"flag"
-//	"log"
 )
 
 type Player struct {
