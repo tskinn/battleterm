@@ -8,6 +8,9 @@ type Player struct {
 	Name string
 }
 
+var PrintY = []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
+var PrintX = []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}
+
 var port string
 var serverMode bool
 var serverAddress string

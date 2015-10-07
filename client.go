@@ -7,6 +7,7 @@ import (
 	"log"
 	"bufio"
 	"strings"
+	"strconv"
 )
 
 func requestMatch(url string) string {
@@ -24,7 +25,6 @@ func requestMatch(url string) string {
 }
 
 func waitForEnemy(port string) net.Conn {
-	log.Println(port)
 	ln, err := net.Listen("tcp", ":5423")
 	if err != nil {
 		log.Fatal(err)
@@ -33,11 +33,7 @@ func waitForEnemy(port string) net.Conn {
 	if err != nil {
 		log.Fatal(err)
 	}
-	message, err := bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Print("Message Received: ", string(message))
+	log.Printf("Successfully connected to ", conn.RemoteAddr().String())
 	return conn
 }
 
@@ -58,9 +54,44 @@ func connectTo(enemy string) net.Conn {
 	return conn
 }
 
+func setPieces() {
+	return
+}
+
+func convToSlice(boardArray []string) (grid [][]int64) {
+	var err error
+	for i, num := range boardArray {
+		grid[i / 10][i % 10], err = strconv.ParseInt(num, 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	return
+}
+
+func updateGame(board string) {
+	msg := strings.TrimRight(board, "\n")
+	boardArry := strings.Split(msg, ",")
+
+	convToSlice(boardArry)
+	
+	return
+}
+
+func updateEnemyCursor(msg string) {
+	cPos := strings.TrimRight(msg, "\n")
+	xy := strings.Split(cPos, ",")
+	x, _ := strconv.ParseInt(xy[0], 10, 64)
+	y, _ := strconv.ParseInt(xy[1], 10, 64)
+	log.Printf("Enemy moved to x:%d, y:%d", x, y)
+	return
+}
+
 func play(conn net.Conn, player Player, goFirst bool) {
 	defer conn.Close()
 
+	playerSetPieces()
+	
 	// sync messaging between players aka who goes first
 	if goFirst {
 		
@@ -68,6 +99,19 @@ func play(conn net.Conn, player Player, goFirst bool) {
 	
 	for {
 		// get message
+		msg, err := bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			log.Println(err) // TODO change this to handle it better
+		}
+		msg = strings.TrimRight(msg, "\n")
+		switch msg {
+		case "CURSOR":
+			cPos, _ := bufio.NewReader(conn).ReadString('\n')
+			updateEnemyCursor(cPos)
+		case "TURN":
+			board, _ := bufio.NewReader(conn).ReadString('\n')
+			updateGame(board)
+		}
 	}
 	
 }
