@@ -45,28 +45,28 @@ func connectTo(enemy string) net.Conn {
 		log.Fatal(err)
 	}
 	log.Printf("Successfully connected to %s", conn.RemoteAddr().String())
-//	conn.Write([]byte("you what is up nigs\n"))
-//	status, err := bufio.NewReader(conn).ReadString('\n')
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println(status)
 	return conn
 }
 
-func setPieces() {
-	return
-}
-
-func convToSlice(boardArray []string) (grid [][]int64) {
+func convToSlice(boardArray []string) [][]int64 {
 	var err error
+
+	// initialize 2d array
+	grid := make([][]int64, 10)
+	for i := 0; i < 10; i++ {
+		grid[i] = make([]int64, 10)
+	}
+
+	// transfer 1d string array to 2d int array
 	for i, num := range boardArray {
 		grid[i / 10][i % 10], err = strconv.ParseInt(num, 10, 64)
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
-	return
+	// if one fails they probably all fail
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	return grid
 }
 
 func updateGame(board string) {
@@ -111,9 +111,10 @@ func play(conn net.Conn, player Player, goFirst bool) {
 		case "TURN":
 			board, _ := bufio.NewReader(conn).ReadString('\n')
 			updateGame(board)
+		case "WAIT": // TODO delete maybe
+			log.Println("Ok. I'll wait...")
 		}
-	}
-	
+	}	
 }
 
 func beClient() {

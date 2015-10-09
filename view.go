@@ -30,7 +30,13 @@ var ui = [...]string{"                    YOURS                                 
 	"  _________ __+=__ __|7_  _1_  ____             _________ __(>__ __|7_  _1_  ____         ",
 	"   \\#####/  \\####/ \\###/ /###\\ \\##/              \\#####/  \\####/ \\###/ /###\\ \\##/         "}
 
-var msgPlaceBoats = "            Place boats with space + arrowKey...              "
+const (
+
+	msg_place_boats = "            Place boats with space + arrowKey...              "
+	msg_wait_enemy_turn = "            Enemy's turn.                           "
+)
+
+
 
 var height, width = 0, 0
 var x, y = 0, 0
@@ -122,4 +128,17 @@ loop:
 		}
 	}
 
+}
+
+func setPieces() {
+	return
+}
+
+func playerSetPieces() {
+	return
+}
+
+func drawEnemyCursor(x, y int) {
+	// dont
+	termbox.SetCursor(x, y)
 }

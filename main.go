@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 type Player struct {
@@ -30,6 +31,7 @@ func init() {
 
 func main() {
 	flag.Parse()
+	
 	port = ":" + port
 	if serverMode {
 		beServer()
