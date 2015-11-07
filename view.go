@@ -7,11 +7,11 @@ import (
 var ui = [...]string{"                    YOURS                                         THEIRS                  ",
 	"   | A | B | C | D | E | F | G | H | I | J |     | A | B | C | D | E | F | G | H | I | J |",
 	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
-	" 0 |   |   |   |   |   |   |   |   |   |   |   0 |   |   |   |   |   |   |   |   |   |   |",
-	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
-	" 1 |   |   |   |   |   |   |   |   |   |   |   1 |   |   |   |   |   |   |   |   |   |   |",
-	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
-	" 2 |   |   |   |   |   |   |   |   |   |   |   2 |   |   |   |   |   |   |   |   |   |   |",
+	" 0 |/#\|   |   |   |   |   |   |   |   |   |   0 |   |   |   |   |   |   |   |   |   |   |",
+	"---+|-|+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
+	" 1 ||#||   |   |   |   |   |   |   |   |   |   1 |   |   |   |   |   |   |   |   |   |   |",
+	"---+|-|+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
+	" 2 |\#/|   |   |   |   |   |   |   |   |   |   2 |   |   |   |   |   |   |   |   |   |   |",
 	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
 	" 3 |   |   |   |   |   |   |   |   |   |   |   3 |   |   |   |   |   |   |   |   |   |   |",
 	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
@@ -34,8 +34,13 @@ const (
 
 	msg_place_boats = "            Place boats with space + arrowKey...              "
 	msg_wait_enemy_turn = "            Enemy's turn.                           "
-)
+	airCraftCarrier = 5
+	battleShip = 4
+	frigate = 3
+	sub = 3
+	littleShip = 2
 
+)
 
 
 var height, width = 0, 0
@@ -130,11 +135,88 @@ loop:
 
 }
 
-func setPieces() {
+func (game *Game)setShip(ship int) {
+
+//	shipEndXY := make([]int, 2)
+	shipStartXY := make([]int 2)
+	xY := make([]int, 2)
+	xY[0], xY[1] := 0, 0
+	x, y := 51, 3
+	offset := 41
+	termbox.SetCursor(x, y) // set cursor at 0,0 of right grid
+
+	startSet := false
+	
+loop:
+	for {
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventResize:
+			//
+		case termbox.EventKey:
+			case ev.Key {
+			case termbox.KeyArrowUp:
+				if y > 3 {
+					y -= 2
+					xY[1] -= 1
+				}
+			case termbox.KeyArrowDown:
+				if y < 20 {
+					y += 2
+					xY[1] += 1
+				}
+			case termbox.KeyArrowLeft:
+				if x > 5 + offset {
+					x -= 4
+					xY[0] -= 1
+				}
+			case termbox.KeyArrowRight:
+				if x < 41 + offset {
+					x += 4
+					xY[0] += 1
+				}
+			case termbox.KeySpace:
+				if startSet {
+					if openSquare(game.MyGrid, xY){
+						game.MyGrid, worked := setShip(game.MyGrid, xY, shipStartXY)
+						
+					}
+				} else {
+					if openSquare(game.MyGrid, xY) {
+						shipStartXY = xY
+					}
+				}
+			}
+			termbox.SetCursor(x,y)
+			termbox.Flush()
+			
+			}
+			if ev.Key == termbox.KeyCtrlQ {
+				break loop
+			}
+			else if ev.Key == termbox.KeyTab {
+				if offset == 0 {
+					offset = 46
+					x = x + offset
+				} else {
+					x = x - offset
+					offset = 0
+				}
+				termbox.SetCursor(x,y)
+				termbox.Flush()
+				break
+			}
+		}		
+	}
 	return
 }
 
 func playerSetPieces() {
+	setShip(airCraftCarrier)
+	setShip(battleShip)
+	setShip(frigate)
+	setShip(sub)
+	setShip(littleShip)
+	
 	return
 }
 
