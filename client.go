@@ -120,11 +120,15 @@ func (game *Game)controller(conn net.Conn, player Player, goFirst bool) {
 
 	game.Setup()
 	theirTurn := goFirst
+	gameOver := false
 
 loop:
 	for {
+		if gameOver {
+			// do something about it
+		}
 		if theirTurn {
-			theirTurn = game.Listen()
+			theirTurn, gameOver = game.Listen()
 			break
 		}
 

@@ -22,7 +22,7 @@ type Game struct {
 	actualY    int
 }
 
-func (game *Game) Listen() bool {
+func (game *Game) Listen() (bool, bool) {
 	// get message
 	msg, err := bufio.NewReader(game.connection).ReadString('\n')
 	if err != nil {
@@ -34,13 +34,15 @@ func (game *Game) Listen() bool {
 		cPos, _ := bufio.NewReader(conn).ReadString('\n')
 		coordinates := strings.TrimRight(coordinates, "\n")
 		game.ourBoard.updateCursor(coordinates)
-		return true		
+		return true, false
 	case "TURN":
 		board, _ := bufio.NewReader(conn).ReadString('\n')
 		updateGame(board)
-		return false
+		return false, false
+	case "QUIT":
+		return false, true
 	}
-	return true
+	return true, false
 }
 
 // remove the cursor from the grid
