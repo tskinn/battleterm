@@ -2,6 +2,9 @@ package main
 
 import (
 	"github.com/nsf/termbox-go"
+	"strings"
+	"strconv"
+	"log"
 )
 
 var ui = [...]string{"                    YOURS                                         THEIRS                  ",
@@ -135,7 +138,62 @@ loop:
 
 }
 
-func (game *Game)setShip(ship int) {
+// func (game *Game)getMove() ([]int, bool) {
+	
+// 	//	shipEndXY := make([]int, 2)
+// 	shipStartXY := make([]int, 2)
+// 	xY := make([]int, 2)
+// 	xY[0], xY[1] = 0, 0
+// 	x, y := 51, 3
+// 	offset := 41
+// 	termbox.SetCursor(x, y) // set cursor at 0,0 of right grid
+
+// 	startSet := false
+	
+// loop:
+// 	for {
+// 		ev := termbox.PollEvent();
+// 		switch ev.Type {
+// 		case termbox.EventResize:
+// 			//
+// 		case termbox.EventKey:
+// 			switch ev.Key {
+// 			case termbox.KeyArrowUp:
+// 				if y > 3 {
+// 					y -= 2
+// 					xY[1] -= 1
+// 				}
+// 			case termbox.KeyArrowDown:
+// 				if y < 20 {
+// 					y += 2
+// 					xY[1] += 1
+// 				}
+// 			case termbox.KeyArrowLeft:
+// 				if x > 5 + offset {
+// 					x -= 4
+// 					xY[0] -= 1
+// 				}
+// 			case termbox.KeyArrowRight:
+// 				if x < 41 + offset {
+// 					x += 4
+// 					xY[0] += 1
+// 				}
+// 			case termbox.KeySpace:
+// 				return xY, true
+// 			}
+// 			termbox.SetCursor(x,y)
+// 			termbox.Flush()
+			
+// 		}
+// 		if ev.Key == termbox.KeyCtrlQ {
+// 			return xY, false
+// 			break loop
+// 		} 
+// 	}
+// 	return xY, false
+// }
+
+func (game *Game)setPieceShip(ship int) {
 
 	//	shipEndXY := make([]int, 2)
 	shipStartXY := make([]int, 2)
@@ -178,9 +236,9 @@ loop:
 			case termbox.KeySpace:
 				if startSet {
 					if game.openSquare(xY){
-						grid, worked := setShip(game.MyGrid, xY, shipStartXY)
+						worked := game.MyGrid.setShip(xY, shipStartXY)
 						if worked {
-							game.MyGrid = grid
+							log.Print("cool")
 						}
 					}
 				} else {
@@ -207,18 +265,20 @@ loop:
 			termbox.Flush()
 			break
 		}
+		log.Print(shipStartXY)
 	}
+
 	return
 }
 
 
 
-func playerSetPieces() {
-	setShip(airCraftCarrier)
-	setShip(battleShip)
-	setShip(frigate)
-	setShip(sub)
-	setShip(littleShip)
+func (game Game)playerSetPieces() {
+	// setPieceShip(airCraftCarrier)
+	// setPieceShip(battleShip)
+	// setPieceShip(frigate)
+	// setPieceShip(sub)
+	// setPieceShip(littleShip)
 	
 	return
 }
@@ -235,4 +295,13 @@ func (game Game)openSquare(xY []int) bool {
 		return true
 	}
 	return false
+}
+
+func updateEnemyCursor(msg string) {
+	cPos := strings.TrimRight(msg, "\n")
+	xy := strings.Split(cPos, ",")
+	x, _ := strconv.ParseInt(xy[0], 10, 64)
+	y, _ := strconv.ParseInt(xy[1], 10, 64)
+	log.Printf("Enemy moved to x:%d, y:%d", x, y)
+	return
 }

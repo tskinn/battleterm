@@ -8,10 +8,10 @@ type Player struct {
 	Name string
 }
 
-type Game struct {
-	EnemyGrid [][]int
-	MyGrid [][]int
-}
+// type Game struct {
+// 	EnemyGrid Grid
+// 	MyGrid    Grid
+// }
 
 var PrintY = []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 var PrintX = []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}

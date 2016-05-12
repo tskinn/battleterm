@@ -8,8 +8,10 @@ import (
 	"bufio"
 	"strings"
 	"strconv"
+	"github.com/nsf/termbox-go"
 )
 
+//
 func requestMatch(url string) string {
 	conn, err := net.Dial("tcp", url)
 	if err != nil {
@@ -24,6 +26,7 @@ func requestMatch(url string) string {
 	return status
 }
 
+// wait for opponents to connect to you
 func waitForEnemy(port string) net.Conn {
 	ln, err := net.Listen("tcp", ":5423")
 	if err != nil {
@@ -37,6 +40,7 @@ func waitForEnemy(port string) net.Conn {
 	return conn
 }
 
+//
 func connectTo(enemy string) net.Conn {
 	// probably not needed 
 	time.Sleep(100 * time.Millisecond)
@@ -48,6 +52,7 @@ func connectTo(enemy string) net.Conn {
 	return conn
 }
 
+// convert Board(string slice) to int slice
 func convToSlice(boardArray []string) [][]int64 {
 	var err error
 
@@ -60,10 +65,9 @@ func convToSlice(boardArray []string) [][]int64 {
 	// transfer 1d string array to 2d int array
 	for i, num := range boardArray {
 		grid[i / 10][i % 10], err = strconv.ParseInt(num, 10, 64)
-	}
-	// if one fails they probably all fail
-	if err != nil {
-		log.Fatal(err)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	
 	return grid
@@ -78,19 +82,73 @@ func updateGame(board string) {
 	return
 }
 
-func updateEnemyCursor(msg string) {
-	cPos := strings.TrimRight(msg, "\n")
-	xy := strings.Split(cPos, ",")
-	x, _ := strconv.ParseInt(xy[0], 10, 64)
-	y, _ := strconv.ParseInt(xy[1], 10, 64)
-	log.Printf("Enemy moved to x:%d, y:%d", x, y)
-	return
+func (game * Game) moveCursor(ev termbox.Event) {
+	
+	switch ev.Key {
+	case termbox.KeyArrowUp:
+		if y > 3 {
+			game.actualY -= 2
+			game.ourCursorY -= 1
+			// y -= 2
+			// xY[1] -= 1
+		}
+	case termbox.KeyArrowDown:
+		if y < 20 {
+			game.actualY += 2
+			game.ourCursorY += 1
+			// y += 2
+			// xY[1] += 1
+		}
+	case termbox.KeyArrowLeft:
+		if x > 5 + offset {
+			game.actualX -= 4
+			game.ourCursorX -= 1
+			// x -= 4
+			// xY[0] -= 1
+		}
+	case termbox.KeyArrowRight:
+		if x < 41 + offset {
+			game.actualX += 4
+			game.ourCursorX += 1
+			// x += 4
+			// xY[0] += 1
+		}
+
+}
+
+func (game *Game)controller(conn net.Conn, player Player, goFirst bool) {
+
+	game.Setup()
+	theirTurn := goFirst
+
+loop:
+	for {
+		if theirTurn {
+			theirTurn = game.Listen()
+			break
+		}
+
+		ev := termbox.PollEvent()
+		if ev.Type == termbox.KeyArrowDown  ||
+			ev.Type == termbox.KeyArrowLeft  ||
+			ev.Type == termbox.KeyArrowRight ||
+			ev.Type == termbox.KeyArrowUp {
+			// move cursor
+			game.theirBoard.moveCursor(ev)
+		} else if ev.Type == termbox.KeySpace {
+			// make move
+		} else if ev.Tyep == termbox.KeyEsc {
+			// quit
+		}
+
+		// update view
+	}
 }
 
 func play(conn net.Conn, player Player, goFirst bool) {
 	defer conn.Close()
-
-	playerSetPieces()
+	game := Game{}
+	game.playerSetPieces()
 	
 	// sync messaging between players aka who goes first
 	if goFirst {
