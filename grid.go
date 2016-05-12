@@ -30,8 +30,8 @@ func toGrid (x, y int) (int, int) {
 
 func (grid *Grid) setPoint(x, y, shipType, pos, axis int) bool {
 	edge := 9
-	if grid[y][x] == 0 {
-		grid[y][x] = shipType | pos | axis
+	if (*grid)[y][x] == 0 {
+		(*grid)[y][x] = shipType | pos | axis
 		return true
 	}
 	return false
@@ -39,47 +39,55 @@ func (grid *Grid) setPoint(x, y, shipType, pos, axis int) bool {
 
 func getShipLen(ship int) int {
 	switch ship {
-	case 1:// little ship
-		return 2
-	case 2:// sub
-		return 3
-	case 4:// frigate
-		return 3
-	case 8:// battleship
-		return 4
-	case 16:// airCraftCarrier
-		return 5
+	case littleShip:// little ship
+		return littleShipLength
+	case sub:// sub
+		return subLength
+	case frigate:// frigate
+		return frigateLength
+	case battleShip:// battleship
+		return battleShipLength
+	case airCraftCarrier:// airCraftCarrier
+		return airCraftCarrierLength
 	}
 	return 2
 }
 
 func (grid *Grid)setShip(x, y, ship int, direction string) bool {
-	len = getShipLen(ship)
+	length := getShipLen(ship)
 	var pos int
 	vert := false
-	if vert == "up" || ver == "down" {
+	if direction == "up" || direction == "down" {
 		vert = true
 	}
 
 	if direction == "up" || direction == "down" {
 		// y increases downward
-		if direction == "up" {y = y - len} // so everything is going down 
-		end := y + len
+		if direction == "up" {y = y - length} // so everything is going down 
+		end := y + length
 		for i := y; i <= end; i++ {
-			if i == y {pos = topEnd}
-			else if i == end {pos = 0}
-			else {pos = middle}
+			if i == y {
+				pos = topEnd
+			} else if i == end {
+				pos = 0
+			} else {
+				pos = middle
+			}
 			if !grid.setPoint(x, i, ship, pos, vertical) {
 				return false
 			}
 		}
 	} else {
-		if direction == "left" {x = x - len} // so everything is going right
-		end := x + len
+		if direction == "left" {x = x - length} // so everything is going right
+		end := x + length
 		for i := x; i <= end; i++ {
-			if i == x {pos = 0}
-			else if i == end {pos = rightEnd}
-			else {pos = middle}
+			if i == x {
+				pos = 0
+			} else if i == end {
+				pos = rightEnd
+			} else {
+				pos = middle
+			}
 			if !grid.setPoint(i, y, ship, pos, horizontal) {
 				return false
 			}
