@@ -1,18 +1,25 @@
 package main
 
 import (
-	"net"
 	"bufio"
+	"strings"
+	"log"
+	"strconv"
+	"github.com/nsf/termbox-go"
 )
 
 type Grid [][]int
 type Ships [][]int
-
+type Connection interface {
+	Read(b []byte) (n int, err error)
+	Write(b []byte) (n int, err error)
+	Close() error
+}
 
 type Game struct {
 	ourBoard   Grid
 	theirBoard Grid
-	connection net.Conn
+	connection Connection
 	ourShips   Ships
 	messageOne string
 	messageTwo string
@@ -31,12 +38,12 @@ func (game *Game) Listen() (bool, bool) {
 	msg = strings.TrimRight(msg, "\n")
 	switch msg {
 	case "CURSORUPDATE":
-		cPos, _ := bufio.NewReader(conn).ReadString('\n')
-		coordinates := strings.TrimRight(coordinates, "\n")
-		game.ourBoard.updateCursor(coordinates)
+		coordString, _ := bufio.NewReader(game.connection).ReadString('\n')
+		coordinates := strings.TrimRight(coordString, "\n")
+		game.updateCursor(coordinates)
 		return true, false
 	case "TURN":
-		board, _ := bufio.NewReader(conn).ReadString('\n')
+		board, _ := bufio.NewReader(game.connection).ReadString('\n')
 		updateGame(board)
 		return false, false
 	case "QUIT":
@@ -47,16 +54,16 @@ func (game *Game) Listen() (bool, bool) {
 
 // remove the cursor from the grid
 func (grid * Grid) removeCursor() {
-	for i := range grid {
-		for j := range grid[i] {
-			if grid[i][j] & cursor == cursor {
-				grid[i][j] = grid[i][j] & antiCursor
+	for i := range (*grid) {
+		for j := range (*grid)[i] {
+			if (*grid)[i][j] & cursor == cursor {
+				(*grid)[i][j] = (*grid)[i][j] & antiCursor
 			}
 		}
 	}
 }
 
-func (grid *Grid)updateCursor(coordinates string) {
+func (game *Game)updateCursor(coordinates string) {
 	xy := strings.Split(coordinates, ",")
 	x, _ := strconv.ParseInt(xy[0], 10, 64)
 	y, _ := strconv.ParseInt(xy[1], 10, 64)
@@ -64,3 +71,40 @@ func (grid *Grid)updateCursor(coordinates string) {
 	game.ourBoard[x][y] |= cursor
 
 }
+
+func (grid *Grid)init() {
+	*grid = make([][]int, 10)
+	for i, _ := range (*grid) {
+		(*grid)[i] = make([]int, 10)
+	}
+}
+
+func (game *Game)Setup() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	termbox.SetInputMode(termbox.InputAlt)
+	
+	width, height = termbox.Size() 
+
+	draw()
+	x = 5
+	//	x = 51
+	y = 3
+	//	offset = 46
+	termbox.SetCursor(x,y)
+	termbox.Flush()
+	
+	game.ourBoard.init()
+	game.theirBoard.init()
+	game.setPieceShip(littleShip)
+	game.setPieceShip(sub)
+	game.setPieceShip(frigate)
+	game.setPieceShip(battleship)
+	game.setPieceShip(airCraftCarrier)
+}
+
+// func (game *Game)setShip(xy, start []int) {
+
+// }

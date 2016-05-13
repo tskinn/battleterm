@@ -113,16 +113,15 @@ func (game * Game) moveCursor(ev termbox.Event) {
 			// x += 4
 			// xY[0] += 1
 		}
-
+	}
 }
 
-func (game *Game)controller(conn net.Conn, player Player, goFirst bool) {
-
+func (game *Game) controller (conn Connection, player Player, goFirst bool) {
+	game.connection = conn
 	game.Setup()
 	theirTurn := goFirst
 	gameOver := false
 
-loop:
 	for {
 		if gameOver {
 			// do something about it
@@ -133,51 +132,53 @@ loop:
 		}
 
 		ev := termbox.PollEvent()
-		if ev.Type == termbox.KeyArrowDown  ||
-			ev.Type == termbox.KeyArrowLeft  ||
-			ev.Type == termbox.KeyArrowRight ||
-			ev.Type == termbox.KeyArrowUp {
-			// move cursor
-			game.theirBoard.moveCursor(ev)
-		} else if ev.Type == termbox.KeySpace {
-			// make move
-		} else if ev.Tyep == termbox.KeyEsc {
-			// quit
+		if ev.Type == termbox.EventKey {
+			if ev.Key == termbox.KeyArrowDown  ||
+				ev.Key == termbox.KeyArrowLeft  ||
+				ev.Key == termbox.KeyArrowRight ||
+				ev.Key == termbox.KeyArrowUp {
+				// move cursor
+				game.moveCursor(ev)
+			} else if ev.Key == termbox.KeySpace {
+				// make move
+			} else if ev.Key == termbox.KeyEsc {
+				// quit
+			}
 		}
 
 		// update view
 	}
 }
 
-func play(conn net.Conn, player Player, goFirst bool) {
-	defer conn.Close()
-	game := Game{}
-	game.playerSetPieces()
+// func play(conn net.Conn, player Player, goFirst bool) {
+// 	defer conn.Close()
+// 	game := Game{}
+// 	game.playerSetPieces()
 	
-	// sync messaging between players aka who goes first
-	if goFirst {
+// 	// sync messaging between players aka who goes first
+// 	if goFirst {
 		
-	}
+// 	}
 	
-	for {
-		// get message
-		msg, err := bufio.NewReader(conn).ReadString('\n')
-		if err != nil {
-			log.Println(err) // TODO change this to handle it better
-		}
-		msg = strings.TrimRight(msg, "\n")
-		switch msg {
-		case "CURSOR":
-			cPos, _ := bufio.NewReader(conn).ReadString('\n')
-			updateEnemyCursor(cPos)
-		case "TURN":
-			board, _ := bufio.NewReader(conn).ReadString('\n')
-			updateGame(board)
-		case "WAIT": // TODO delete maybe
-			log.Println("Ok. I'll wait...")
-		}
-	}	
-}
+// 	for {
+// 		// get message
+// 		msg, err := bufio.NewReader(conn).ReadString('\n')
+// 		if err != nil {
+// 			log.Println(err) // TODO change this to handle it better
+// 		}
+// 		msg = strings.TrimRight(msg, "\n")
+// 		switch msg {
+// 		case "CURSOR":
+// 			cPos, _ := bufio.NewReader(conn).ReadString('\n')
+// 			updateEnemyCursor(cPos)
+// 		case "TURN":
+// 			board, _ := bufio.NewReader(conn).ReadString('\n')
+// 			updateGame(board)
+// 		case "WAIT": // TODO delete maybe
+// 			log.Println("Ok. I'll wait...")
+// 		}
+// 	}	
+// }
 
 func beClient() {
 	serverAddress := serverAddress + port
@@ -194,6 +195,7 @@ func beClient() {
 	}
 
 	player := Player{Name: name}
+	game := Game{}
 //	conn.Close()
-	play(conn, player, goFirst)
+	game.controller(conn, player, goFirst)
 }

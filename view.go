@@ -34,15 +34,14 @@ var ui = [...]string{"                    YOURS                                 
 	"   \\#####/  \\####/ \\###/ /###\\ \\##/              \\#####/  \\####/ \\###/ /###\\ \\##/         "}
 
 const (
-
-	msg_place_boats = "            Place boats with space + arrowKey...              "
-	msg_wait_enemy_turn = "            Enemy's turn.                           "
+	msgPlaceBoats =    "            Place boats with space + arrowKey...              "
+	msgWaitEnemyTurn = "            Enemy's turn.                           "
+	msgYourTurn =      "            Your turn.                              "
 	airCraftCarrierLength = 5
 	battleShipLength = 4
 	frigateLength = 3
 	subLength = 3
 	littleShipLength = 2
-
 )
 
 
@@ -64,7 +63,7 @@ func draw() {
 			}
 		}
 	}
-	for i, r := range msg_place_boats {
+	for i, r := range msgPlaceBoats {
 		termbox.SetCell(i, 26, r, termbox.ColorWhite, fg)
 	}
 	termbox.Flush()
@@ -204,7 +203,13 @@ func (game *Game)setPieceShip(ship int) {
 	termbox.SetCursor(x, y) // set cursor at 0,0 of right grid
 
 	startSet := false
-	
+	draw()
+	x = 5
+//	x = 51
+	y = 3
+//	offset = 46
+	termbox.SetCursor(x,y)
+	termbox.Flush()
 loop:
 	for {
 		ev := termbox.PollEvent();
@@ -236,7 +241,7 @@ loop:
 			case termbox.KeySpace:
 				if startSet {
 					if game.openSquare(xY){
-						worked := game.MyGrid.setShip(xY, shipStartXY)
+						worked := game.ourBoard.setShip(xY, shipStartXY, ship)
 						if worked {
 							log.Print("cool")
 						}
@@ -244,6 +249,7 @@ loop:
 				} else {
 					if game.openSquare(xY) {
 						shipStartXY = xY
+						startSet = true
 					}
 				}
 			}
@@ -291,7 +297,7 @@ func drawEnemyCursor(x, y int) {
 // is square empty or not
 func (game Game)openSquare(xY []int) bool {
 	
-	if game.MyGrid[xY[0]][xY[1]] == 0 {
+	if game.ourBoard[xY[0]][xY[1]] == 0 {
 		return true
 	}
 	return false

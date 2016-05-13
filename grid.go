@@ -73,7 +73,7 @@ func getShipLen(ship int) int {
 		return subLength
 	case frigate:// frigate
 		return frigateLength
-	case battleShip:// battleship
+	case battleship:// battleship
 		return battleShipLength
 	case airCraftCarrier:// airCraftCarrier
 		return airCraftCarrierLength
@@ -81,49 +81,61 @@ func getShipLen(ship int) int {
 	return 2
 }
 
-func (grid *Grid)setShip(xy, start []int) bool {
-	return false
+// func (grid *Grid)setShip(xy, start []int) bool {
+// 	return false
+// }
+
+func (grid *Grid)setShip(xyEnd, xyStart []int, ship int) bool {
+	length := getShipLen(ship)
+	direction := getDirection(xyEnd, xyStart)
+	var pos int
+
+	if direction == up || direction == down { // y increases downward
+		if direction == up { // so everything is going down 
+			y = y - length
+		} 
+		end := y + length
+		for i := y; i <= end; i++ {
+			if i == y {
+				pos = topEnd
+			} else if i == end {
+				pos = 0
+			} else {
+				pos = middle
+			}
+			if !grid.setPoint(x, i, ship, pos, vertical) {
+				return false
+			}
+		}
+	} else {
+		if direction == left {// so everything is going right
+			x = x - length
+		} 
+		end := x + length
+		for i := x; i <= end; i++ {
+			if i == x {
+				pos = 0
+			} else if i == end {
+				pos = rightEnd
+			} else {
+				pos = middle
+			}
+			if !grid.setPoint(i, y, ship, pos, horizontal) {
+				return false
+			}
+		}
+	}
+	
+	return true // it worked
 }
 
-// func (grid *Grid)setShip(xy []int, ship int, direction string) bool {
-// 	length := getShipLen(ship)
-// 	var pos int
-
-// 	if direction == up || direction == down { // y increases downward
-// 		if direction == up { // so everything is going down 
-// 			y = y - length
-// 		} 
-// 		end := y + length
-// 		for i := y; i <= end; i++ {
-// 			if i == y {
-// 				pos = topEnd
-// 			} else if i == end {
-// 				pos = 0
-// 			} else {
-// 				pos = middle
-// 			}
-// 			if !grid.setPoint(x, i, ship, pos, vertical) {
-// 				return false
-// 			}
-// 		}
-// 	} else {
-// 		if direction == left {// so everything is going right
-// 			x = x - length
-// 		} 
-// 		end := x + length
-// 		for i := x; i <= end; i++ {
-// 			if i == x {
-// 				pos = 0
-// 			} else if i == end {
-// 				pos = rightEnd
-// 			} else {
-// 				pos = middle
-// 			}
-// 			if !grid.setPoint(i, y, ship, pos, horizontal) {
-// 				return false
-// 			}
-// 		}
-// 	}
-	
-// 	return true // it worked
-// }
+func getDirection(start, end []int) string {
+	if start[0] < end[0] {
+		return "right"
+	} else if start[0] > end[0] {
+		return "left"
+	} else if start[1] > end[1] {
+		return "down"
+	}
+	return "up"
+}
