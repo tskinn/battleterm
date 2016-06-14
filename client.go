@@ -4,39 +4,38 @@ import (
 	"fmt"
 	"net"
 	"time"
-	"log"
 	"bufio"
 	"strings"
 	"strconv"
 	"github.com/nsf/termbox-go"
 )
 
-//
+// connect to other player
 func requestMatch(url string) string {
 	conn, err := net.Dial("tcp", url)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	fmt.Fprintf(conn, "hello\n")
 	status, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
-	log.Println(status)
+	logger.Println(status)
 	return status
 }
 
-// wait for opponents to connect to you
+// wait for other player to connect to you
 func waitForEnemy(port string) net.Conn {
 	ln, err := net.Listen("tcp", ":5423")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	conn, err := ln.Accept()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
-	log.Printf("Successfully connected to ", conn.RemoteAddr().String())
+	logger.Printf("Successfully connected to ", conn.RemoteAddr().String())
 	return conn
 }
 
@@ -46,9 +45,9 @@ func connectTo(enemy string) net.Conn {
 	time.Sleep(100 * time.Millisecond)
 	conn, err := net.Dial("tcp", "127.0.0.1:5423")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
-	log.Printf("Successfully connected to %s", conn.RemoteAddr().String())
+	logger.Printf("Successfully connected to %s", conn.RemoteAddr().String())
 	return conn
 }
 
@@ -66,19 +65,18 @@ func convToSlice(boardArray []string) [][]int64 {
 	for i, num := range boardArray {
 		grid[i / 10][i % 10], err = strconv.ParseInt(num, 10, 64)
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatal(err)
 		}
-	}
-	
+	}	
 	return grid
 }
 
+// TODO what is this
 func updateGame(board string) {
 	msg := strings.TrimRight(board, "\n")
 	boardArry := strings.Split(msg, ",")
 
-	convToSlice(boardArry)
-	
+	convToSlice(boardArry)	
 	return
 }
 
@@ -196,6 +194,6 @@ func beClient() {
 
 	player := Player{Name: name}
 	game := Game{}
-//	conn.Close()
 	game.controller(conn, player, goFirst)
+	conn.Close()
 }

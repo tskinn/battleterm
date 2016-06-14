@@ -4,17 +4,16 @@ import (
 	"github.com/nsf/termbox-go"
 	"strings"
 	"strconv"
-	"log"
 )
-
+//  0123456789012345678901    
 var ui = [...]string{"                    YOURS                                         THEIRS                  ",
 	"   | A | B | C | D | E | F | G | H | I | J |     | A | B | C | D | E | F | G | H | I | J |",
 	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
-	" 0 |/#\\|   |   |   |   |   |   |   |   |   |   0 |   |   |   |   |   |   |   |   |   |   |",
-	"---+|-|+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
-	" 1 ||#||   |   |   |   |   |   |   |   |   |   1 |   |   |   |   |   |   |   |   |   |   |",
-	"---+|-|+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
-	" 2 |\\#/|   |   |   |   |   |   |   |   |   |   2 |   |   |   |   |   |   |   |   |   |   |",
+	" 0 |   |   |   |   |   |   |   |   |   |   |   0 |   |   |   |   |   |   |   |   |   |   |",
+	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
+	" 1 |   |   |   |   |   |   |   |   |   |   |   1 |   |   |   |   |   |   |   |   |   |   |",
+	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
+	" 2 |   |   |   |   |   |   |   |   |   |   |   2 |   |   |   |   |   |   |   |   |   |   |",
 	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
 	" 3 |   |   |   |   |   |   |   |   |   |   |   3 |   |   |   |   |   |   |   |   |   |   |",
 	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
@@ -32,6 +31,61 @@ var ui = [...]string{"                    YOURS                                 
 	"---+---+---+---+---+---+---+---+---+---+---+  ---+---+---+---+---+---+---+---+---+---+---+",
 	"  _________ __+=__ __|7_  _1_  ____             _________ __(>__ __|7_  _1_  ____         ",
 	"   \\#####/  \\####/ \\###/ /###\\ \\##/              \\#####/  \\####/ \\###/ /###\\ \\##/         "}
+
+
+func drawPlayerPieces(grid Grid, offset int, fg, color termbox.Attribute) {
+	for x := 0; x < len(grid); x++ {
+		for y := 0; y < len(grid[x]); y++ {
+			uiX := (x * 5) + 5 + offset
+			uiY := (y * 2) + 2
+
+			triple := translatePositionChars(grid[x][y])
+			i := -1
+			for _, value := range(triple) {
+				termbox.SetCell(uiX + i, uiY, value, color, fg)
+			}
+			
+			// termbox.SetCell(x-1, y, triple[0], color, fg)
+			// termbox.SetCell(x,   y, triple[1], color, fg)
+			// termbox.SetCell(x+1, y, triple[2], color, fg)
+			// set at realX,realY
+		}
+	}
+}
+
+func translatePositionChars(n int) []rune {
+	val := make([]rune, 3)
+	if (n & hit == hit) {
+		val[1] = 'X'
+	} else {
+		val[1] = 'O'
+	}
+	if (n & vertical == vertical) {
+		if (n & topEnd == topEnd) {
+			val[0] = '/'
+			val[2] = '\\'
+			return val
+		}
+		if (n & middle == middle) {
+			val[0] = '|'
+			val[2] = '|'
+			return val
+		}
+		val[0] = '\\'
+		val[2] = '/'
+		return val
+	} 
+	if (n & middle == middle) {
+		return val
+	}
+	if (n & rightEnd == rightEnd) {
+		val[2] = '>'
+		return val
+	}
+	val[0] = '<'
+	return val
+}
+
 
 const (
 	msgPlaceBoats =    "            Place boats with space + arrowKey...              "
@@ -99,9 +153,6 @@ func view() {
 	}
 	defer termbox.Close()
 	termbox.SetInputMode(termbox.InputAlt)
-
-	
-	
 	width, height = termbox.Size() 
 
 	draw()
@@ -193,21 +244,19 @@ loop:
 // }
 
 func (game *Game)setPieceShip(ship int) {
-
+	logger.Printf("Setting ship number: %d", ship)
 	//	shipEndXY := make([]int, 2)
 	shipStartXY := make([]int, 2)
 	xY := make([]int, 2)
 	xY[0], xY[1] = 0, 0
 	x, y := 51, 3
-	offset := 41
+	offset := 0
 	termbox.SetCursor(x, y) // set cursor at 0,0 of right grid
-
 	startSet := false
-	draw()
+
 	x = 5
-//	x = 51
 	y = 3
-//	offset = 46
+	draw()
 	termbox.SetCursor(x,y)
 	termbox.Flush()
 loop:
@@ -239,14 +288,19 @@ loop:
 					xY[0] += 1
 				}
 			case termbox.KeySpace:
+				logger.Println("Set command pushed")
 				if startSet {
+					logger.Println("Start set")
 					if game.openSquare(xY){
+						logger.Println("Square is open")
 						worked := game.ourBoard.setShip(xY, shipStartXY, ship)
 						if worked {
-							log.Print("cool")
+							return
 						}
+						startSet = false
 					}
 				} else {
+					logger.Println("Start NOT set")
 					if game.openSquare(xY) {
 						shipStartXY = xY
 						startSet = true
@@ -259,19 +313,13 @@ loop:
 		}
 		if ev.Key == termbox.KeyCtrlQ {
 			break loop
-		} else if ev.Key == termbox.KeyTab {
-			if offset == 0 {
-				offset = 46
-				x = x + offset
-			} else {
-				x = x - offset
-				offset = 0
-			}
-			termbox.SetCursor(x,y)
-			termbox.Flush()
-			break
 		}
-		log.Print(shipStartXY)
+		draw()
+		game.draw()
+		termbox.Flush()
+		logger.Print(shipStartXY)
+		logger.Printf("Position: %d,%d", xY[0], xY[1])
+		printGrid(game.ourBoard)
 	}
 
 	return
@@ -303,11 +351,41 @@ func (game Game)openSquare(xY []int) bool {
 	return false
 }
 
+func (game Game)draw() {
+	fg := termbox.ColorDefault
+	//	bg := termbox.ColorBlack
+	blue := termbox.ColorBlue
+	red := termbox.ColorRed
+	// print generic boards
+	for i, rx := range ui {
+		for j, ry := range rx  {
+			if j > 44 {
+				termbox.SetCell(j, i, ry, red, fg)
+			} else {
+				termbox.SetCell(j, i, ry, blue, fg)
+			}
+		}
+	}
+	// print messages at bottom of boards
+	for i, r := range msgPlaceBoats {
+		termbox.SetCell(i, 26, r, termbox.ColorWhite, fg)
+	}
+	drawPlayerPieces(game.ourBoard, 0, fg, blue)
+	drawPlayerPieces(game.theirBoard, 4, fg, red)
+	termbox.Flush()
+}
+
+func printGrid(grid Grid) {
+	for i := 0; i < len(grid); i++ {
+		logger.Println(grid[i])
+	}
+}
+
 func updateEnemyCursor(msg string) {
 	cPos := strings.TrimRight(msg, "\n")
 	xy := strings.Split(cPos, ",")
 	x, _ := strconv.ParseInt(xy[0], 10, 64)
 	y, _ := strconv.ParseInt(xy[1], 10, 64)
-	log.Printf("Enemy moved to x:%d, y:%d", x, y)
+	logger.Printf("Enemy moved to x:%d, y:%d", x, y)
 	return
 }

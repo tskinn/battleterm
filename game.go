@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"strings"
-	"log"
 	"strconv"
 	"github.com/nsf/termbox-go"
 )
@@ -33,7 +32,7 @@ func (game *Game) Listen() (bool, bool) {
 	// get message
 	msg, err := bufio.NewReader(game.connection).ReadString('\n')
 	if err != nil {
-		log.Println(err) // TODO change this to handle it better
+		logger.Println(err) // TODO change this to handle it better
 	}
 	msg = strings.TrimRight(msg, "\n")
 	switch msg {
@@ -99,10 +98,15 @@ func (game *Game)Setup() {
 	game.ourBoard.init()
 	game.theirBoard.init()
 	game.setPieceShip(littleShip)
+	game.draw()
 	game.setPieceShip(sub)
+	game.draw()
 	game.setPieceShip(frigate)
+	game.draw()
 	game.setPieceShip(battleship)
+	game.draw()
 	game.setPieceShip(airCraftCarrier)
+	game.draw()
 }
 
 // func (game *Game)setShip(xy, start []int) {

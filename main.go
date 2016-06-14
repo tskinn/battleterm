@@ -2,19 +2,18 @@ package main
 
 import (
 	"flag"
+	"log"
+	"os"
+	"time"
+	"strconv"
 )
+
+var logger *log.Logger
 
 type Player struct {
 	Name string
+	// TODO should we pass this to other player in first handshake?
 }
-
-// type Game struct {
-// 	EnemyGrid Grid
-// 	MyGrid    Grid
-// }
-
-var PrintY = []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
-var PrintX = []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}
 
 var port string
 var serverMode bool
@@ -35,7 +34,13 @@ func init() {
 
 func main() {
 	flag.Parse()
-	
+	now := time.Now().Nanosecond()
+	// TODO replace the name of the file
+	file, err := os.OpenFile(strconv.Itoa(now) + ".log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		return
+	}
+	logger = log.New(file, "log: ", log.Lshortfile)
 	port = ":" + port
 	if serverMode {
 		beServer()

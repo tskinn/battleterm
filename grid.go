@@ -1,5 +1,6 @@
 package main
 
+
 // each coordinate is an integer with each bit in the integer
 // signifying different attributes of ship or whatever
 
@@ -53,7 +54,11 @@ const (
 // type Grid [][]int
 
 func toGrid (x, y int) (int, int) {
-	return x + 41, y + 3
+	return (x * 5) + 5, (y * 2) + 2
+}
+
+func fromGrid (x, y int) (int, int) {
+	return (x / 5) - 5, (y / 2) - 2
 }
 
 func (grid *Grid) setPoint(x, y, shipType, pos, axis int) bool {
@@ -86,6 +91,8 @@ func getShipLen(ship int) int {
 // }
 
 func (grid *Grid)setShip(xyEnd, xyStart []int, ship int) bool {
+	logger.Printf("ShipStart x:%d y:%d", xyStart[0], xyStart[1])
+	logger.Printf("ShipEnds  x:%d y:%d", xyEnd[0], xyEnd[1])
 	length := getShipLen(ship)
 	direction := getDirection(xyEnd, xyStart)
 	var pos int
